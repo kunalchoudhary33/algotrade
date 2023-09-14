@@ -9,9 +9,9 @@ import sys
 
 logging.basicConfig(level=logging.DEBUG)
 
-CONFIG_PATH = "D:/auto_pilot/config/config.json"
-PRICE_CONFIG_PATH = "D:/auto_pilot/config/price_config.json"
-CRED_CONFIG_PATH = "D:/auto_pilot/config/cred.json"
+CONFIG_PATH = "../config/config.json"
+PRICE_CONFIG_PATH = "../config/price_config.json"
+CRED_CONFIG_PATH = "../config/cred.json"
 
 last_traded_price = 0
 

@@ -1,5 +1,3 @@
-print("This is access token file ")
-
 from kiteconnect import KiteConnect
 import json
 import logging
