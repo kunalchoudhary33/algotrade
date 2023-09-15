@@ -3,7 +3,7 @@ import logging
 import json
 import time
 
-
+logging.getLogger("urllib3").setLevel(logging.WARNING)
 logging.basicConfig(level=logging.DEBUG)
 
 CONFIG_PATH = "../config/config.json"
@@ -64,8 +64,7 @@ class Bot():
         strike_price = self.strike_price()
         print("Oders executed for : "+str(strike_price))
         order_id = self.kite.place_order('regular', 'NFO', strike_price, 'BUY', self.quantity, 'NRML', 'MARKET')
-
-        return strike_price
+        return order_id
     
     
 
@@ -124,8 +123,6 @@ class Bot():
                 if(ltp <= stoploss):
                     order_id = self.kite.place_order('regular', 'NFO', tradingsymbol, 'SELL', quantity, 'NRML', 'MARKET')
                     print("Trailing SL Hit")
-                
-
 
             time.sleep(0.25)       
     
