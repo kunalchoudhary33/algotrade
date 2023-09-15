@@ -1,15 +1,13 @@
 from kiteconnect import KiteConnect
 import logging
 import json
-import sys
+import time
 
 
 logging.basicConfig(level=logging.DEBUG)
 
 CONFIG_PATH = "../config/config.json"
 CRED_CONFIG_PATH = "../config/cred.json"
-
-
 
 
 class Bot():
@@ -61,15 +59,82 @@ class Bot():
     
 
 
-    def place_order(self):
+    def place_buy_order(self):
         logging.info("This is in place order")
         strike_price = self.strike_price()
+        print("Oders executed for : "+str(strike_price))
         order_id = self.kite.place_order('regular', 'NFO', strike_price, 'BUY', self.quantity, 'NRML', 'MARKET')
 
-        return order_id
+        return strike_price
+    
+    
+
+    def get_position(self):
+        tradingsymbol = ""
+        buy_price = 0
+        quantity = 0
+        position = self.kite.positions()
+        for open_position in position['net']:
+            qty = open_position['quantity']
+            if(qty>0):
+                tradingsymbol = open_position['tradingsymbol']
+                quantity = open_position['quantity']
+                buy_price = open_position['last_price']
+                return tradingsymbol, quantity, buy_price
+            else:
+                print("No Open position found")
+                return tradingsymbol, quantity, buy_price
+    
+
+    def auto_trade(self):
+        stoploss_per = 0.89
+        target_per = 1.10
+        train_sl_per = 0.95
+        tradingsymbol, quantity, buy_price = self.get_position()
+        print("tradingsymbol : "+str(tradingsymbol))
+        print("quantity : "+str(quantity))
+        print("buy_price : "+str(buy_price))
+
+        stoploss = round(stoploss_per * buy_price)
+        target = round(target_per * buy_price)
+        print("stoploss : "+str(stoploss))
+        print("target : "+str(target))
+
+        trailsl = False
+        max_point = 0
+        while True:
+            ltp = self.kite.quote('NFO:'+str(tradingsymbol))['NFO:'+str(tradingsymbol)]["last_price"] 
+
+            if(trailsl == False):
+                if(ltp <= stoploss):
+                    order_id = self.kite.place_order('regular', 'NFO', tradingsymbol, 'SELL', quantity, 'NRML', 'MARKET')
+                    print("Stop loss hit")
+                elif(ltp >= target):
+                    order_id = self.kite.place_order('regular', 'NFO', tradingsymbol, 'SELL', quantity/2, 'NRML', 'MARKET')
+                    print("Target Hit.")
+                    trailsl = True
+                    max_point = ltp
+                    stoploss = buy_price
+
+            elif(trailsl == True):
+                if(ltp >= max_point):
+                    max_point = ltp
+                    stoploss = (train_sl_per * max_point)
+
+                if(ltp <= stoploss):
+                    order_id = self.kite.place_order('regular', 'NFO', tradingsymbol, 'SELL', quantity, 'NRML', 'MARKET')
+                    print("Trailing SL Hit")
+                
+
+
+            time.sleep(0.25)       
     
 
 
 
 cls = Bot()
-cls.place_order()
+cls.place_buy_order()
+cls.auto_trade()
+
+
+

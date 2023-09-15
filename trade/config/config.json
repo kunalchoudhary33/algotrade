@@ -6,7 +6,7 @@
 
   "expiry": "21",
   "index": "NIFTY 50",
-  "quantity" : 500,
+  "quantity" : 100,
 
 
   "lot_size": 2,
