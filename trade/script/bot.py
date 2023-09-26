@@ -21,10 +21,12 @@ class Bot():
             config = json.load(f)
 
         self.quantity = [config['quantity']]
-        self.option = [config['option']]
+        # self.option = [config['option']]
         self.index = [config['index']]
         self.expiry = [config['expiry']]
         
+        self.option = []
+
         self.kite = KiteConnect(api_key=self.api_key)
         self.kite.set_access_token(access_token=self.access_token)
 
@@ -50,9 +52,9 @@ class Bot():
         atm = round(ltp / 50) * 50
         otm = atm - 50
         itm = atm + 50
-        atm_symbol = "NIFTY239"+str(self.expiry[0])+str(atm)+self.option[0]
-        otm_symbol = "NIFTY239"+str(self.expiry[0])+str(otm)+self.option[0]
-        itm_symbol = "NIFTY239"+str(self.expiry[0])+str(itm)+self.option[0]
+        atm_symbol = "NIFTY23"+str(self.expiry[0])+str(atm)+self.option[0]
+        otm_symbol = "NIFTY23"+str(self.expiry[0])+str(otm)+self.option[0]
+        itm_symbol = "NIFTY23"+str(self.expiry[0])+str(itm)+self.option[0]
 
         strike_price = self.select_strike_price(atm_symbol, otm_symbol, itm_symbol)
         return strike_price
@@ -60,7 +62,9 @@ class Bot():
 
 
     def place_buy_order(self):
-        logging.info("This is in place order")
+        logging.info("Algo started to place order and execution.")
+        option = input("Enter the options (CE/PE) : ")
+        self.option.append(option)
         strike_price = self.strike_price()
         print("Oders executed for : "+str(strike_price))
         order_id = self.kite.place_order('regular', 'NFO', strike_price, 'BUY', self.quantity, 'NRML', 'MARKET')
@@ -81,7 +85,7 @@ class Bot():
                 buy_price = open_position['last_price']
                 return tradingsymbol, quantity, buy_price
             else:
-                print("No Open position found")
+                logging.info("No Open position found")
                 return tradingsymbol, quantity, buy_price
     
 
@@ -90,14 +94,14 @@ class Bot():
         target_per = 1.10
         train_sl_per = 0.95
         tradingsymbol, quantity, buy_price = self.get_position()
-        print("tradingsymbol : "+str(tradingsymbol))
-        print("quantity : "+str(quantity))
-        print("buy_price : "+str(buy_price))
+        logging.info("tradingsymbol : "+str(tradingsymbol))
+        logging.info("quantity : "+str(quantity))
+        logging.info("buy_price : "+str(buy_price))
 
         stoploss = round(stoploss_per * buy_price)
         target = round(target_per * buy_price)
-        print("stoploss : "+str(stoploss))
-        print("target : "+str(target))
+        logging.info("stoploss : "+str(stoploss))
+        logging.info("target : "+str(target))
 
         trailsl = False
         max_point = 0
@@ -107,10 +111,11 @@ class Bot():
             if(trailsl == False):
                 if(ltp <= stoploss):
                     order_id = self.kite.place_order('regular', 'NFO', tradingsymbol, 'SELL', quantity, 'NRML', 'MARKET')
-                    print("Stop loss hit")
+                    logging.info("Stop loss hit")
+                    break
                 elif(ltp >= target):
                     order_id = self.kite.place_order('regular', 'NFO', tradingsymbol, 'SELL', quantity/2, 'NRML', 'MARKET')
-                    print("Target Hit.")
+                    logging.info("Target Hit.")
                     trailsl = True
                     max_point = ltp
                     stoploss = buy_price
@@ -119,10 +124,15 @@ class Bot():
                 if(ltp >= max_point):
                     max_point = ltp
                     stoploss = (train_sl_per * max_point)
+                    min_profit = (stoploss - buy_price) * quantity/2
+                    logging.info("New Stoploss : "+str(stoploss))
+                    logging.info("max_point : "+str(max_point))
+                    logging.info("min_profit : "+str(min_profit))
 
                 if(ltp <= stoploss):
-                    order_id = self.kite.place_order('regular', 'NFO', tradingsymbol, 'SELL', quantity, 'NRML', 'MARKET')
-                    print("Trailing SL Hit")
+                    order_id = self.kite.place_order('regular', 'NFO', tradingsymbol, 'SELL', quantity/2, 'NRML', 'MARKET')
+                    logging.info("Trailing SL Hit")
+                    break
 
             time.sleep(0.25)       
     
