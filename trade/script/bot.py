@@ -81,16 +81,19 @@ class Bot():
 
 
     def place_buy_order(self):
-        logging.info("Algo started to place order and execution.")
-        option = input("Enter the options (CE/PE) : ")
-        self.option.append(option)
-        strike_price = self.strike_price()
-        print("Oders executed for : "+str(strike_price))
-        order_id = self.kite.place_order('regular', 'NFO', strike_price, 'BUY', self.quantity, 'NRML', 'MARKET')
-        return order_id
-    
-    
+        try:
+            logging.info("Algo started to place order and execution.")
+            option = input("Enter the options (CE/PE) : ")
+            self.option.append(option)
+            strike_price = self.strike_price()
+            print("Oders executed for : "+str(strike_price))
+            order_id = self.kite.place_order('regular', 'NFO', strike_price, 'BUY', self.quantity, 'NRML', 'MARKET')
+            logging.info("Order placed. "+str(order_id))
+        except:
+            logging.info("Exception happened while placing the order.")
 
+    
+    
     def get_position(self):
         tradingsymbol = ""
         buy_price = 0
@@ -101,7 +104,9 @@ class Bot():
             if(qty>0):
                 tradingsymbol = open_position['tradingsymbol']
                 quantity = open_position['quantity']
-                buy_price = open_position['last_price']
+                #buy_price = open_position['last_price']
+                buy_price = open_position['buy_price']
+                
                 return tradingsymbol, quantity, buy_price
             else:
                 logging.info("No Open position found")
@@ -109,7 +114,6 @@ class Bot():
     
 
     def auto_trade(self):
-
         tradingsymbol, quantity, buy_price = self.get_position()
         if(buy_price < 100):
             target = round(buy_price + 10)
@@ -127,23 +131,25 @@ class Bot():
         full_qty = int(self.quantity[0])
 
         while True:
-            ltp = self.kite.quote('NFO:'+str(tradingsymbol))['NFO:'+str(tradingsymbol)]["last_price"] 
-
-            if(ltp <= stoploss):
-                order_id = self.kite.place_order('regular', 'NFO', tradingsymbol, 'SELL', full_qty, 'NRML', 'MARKET')
-                logging.info("Stop loss hit")
-                break
-            elif(ltp >= target):
-                order_id = self.kite.place_order('regular', 'NFO', tradingsymbol, 'SELL', full_qty, 'NRML', 'MARKET')
-                profit = (target - buy_price) * full_qty
-                logging.info("Target Hit. Profit booked for 1st milestone. "+str(profit))
-                break
-        
-
-            time.sleep(0.20)       
+            try:
+                ltp = self.kite.quote('NFO:'+str(tradingsymbol))['NFO:'+str(tradingsymbol)]["last_price"] 
+                if(ltp <= stoploss):
+                    order_id = self.kite.place_order('regular', 'NFO', tradingsymbol, 'SELL', full_qty, 'NRML', 'MARKET')
+                    logging.info("Stop loss hit")
+                    break
+                elif(ltp >= target):
+                    order_id = self.kite.place_order('regular', 'NFO', tradingsymbol, 'SELL', full_qty, 'NRML', 'MARKET')
+                    profit = (target - buy_price) * full_qty
+                    logging.info("Target Hit. Profit booked "+str(profit))
+                    break
+                time.sleep(0.20) 
+            except:
+                logging.info("This is exception block in auto trade")
+                time.sleep(0.20)      
     
-
 
 cls = Bot()
 cls.place_buy_order()
+time.sleep(0.20)
 cls.auto_trade()
+
