@@ -84,6 +84,7 @@ class Bot():
         try:
             logging.info("Algo started to place order and execution.")
             option = input("Enter the options (CE/PE) : ")
+            # logging.info(option.upper())
             self.option.append(option)
             strike_price = self.strike_price()
             print("Oders executed for : "+str(strike_price))
@@ -104,7 +105,6 @@ class Bot():
             if(qty>0):
                 tradingsymbol = open_position['tradingsymbol']
                 quantity = open_position['quantity']
-                #buy_price = open_position['last_price']
                 buy_price = open_position['buy_price']
                 
                 return tradingsymbol, quantity, buy_price
@@ -114,7 +114,14 @@ class Bot():
     
 
     def auto_trade(self):
-        tradingsymbol, quantity, buy_price = self.get_position()
+        # tradingsymbol, quantity, buy_price = self.get_position()
+        while True:
+            try:
+                tradingsymbol, quantity, buy_price = self.get_position()
+                break
+            except:
+                time.sleep(1)
+                
         if(buy_price < 100):
             target = round(buy_price + 10)
             stoploss = round(buy_price - 10)
@@ -146,10 +153,10 @@ class Bot():
             except:
                 logging.info("This is exception block in auto trade")
                 time.sleep(0.20)      
-    
+ 
 
 cls = Bot()
 cls.place_buy_order()
-time.sleep(0.20)
+# time.sleep(10)
 cls.auto_trade()
 
