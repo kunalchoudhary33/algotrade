@@ -1,5 +1,5 @@
 from kiteconnect import KiteConnect
-import logging
+ 
 import json
 import time
 
@@ -157,6 +157,5 @@ class Bot():
 
 cls = Bot()
 cls.place_buy_order()
-# time.sleep(10)
 cls.auto_trade()
 
