@@ -29,6 +29,9 @@ class Bot():
         self.kite = KiteConnect(api_key=self.api_key)
         self.kite.set_access_token(access_token=self.access_token)
 
+        #indiavix_val = self.kite.ohlc('NSE:INDIA VIX')
+        #self.risk_per = round(indiavix_val.get('NSE:INDIA VIX').get('last_price'))
+        #print(self.risk_per)
 
     def select_strike_price(self, value1, value2, value3, value4, value5):
         value1_price = self.kite.quote('NFO:'+str(value1))['NFO:'+str(value1)]["last_price"]
