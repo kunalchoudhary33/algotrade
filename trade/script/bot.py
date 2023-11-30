@@ -29,8 +29,8 @@ class Bot():
         self.kite = KiteConnect(api_key=self.api_key)
         self.kite.set_access_token(access_token=self.access_token)
 
-        #indiavix_val = self.kite.ohlc('NSE:INDIA VIX')
-        #self.risk_per = round(indiavix_val.get('NSE:INDIA VIX').get('last_price'))
+        indiavix_val = self.kite.ohlc('NSE:INDIA VIX')
+        self.risk_per = round(indiavix_val.get('NSE:INDIA VIX').get('last_price'))
         #print(self.risk_per)
 
     def select_strike_price(self, value1, value2, value3, value4, value5):
@@ -126,11 +126,11 @@ class Bot():
                 time.sleep(1)
                 
         if(buy_price < 100):
-            target = round(buy_price + 10)
-            stoploss = round(buy_price - 10)
+            target = round(buy_price + self.risk_per)
+            stoploss = round(buy_price - self.risk_per)
         else:
-            target = round(buy_price * 1.10)
-            stoploss = round(buy_price * 0.90)
+            target = round(buy_price + (buy_price*self.risk_per)/100)
+            stoploss = round(buy_price - (buy_price*self.risk_per)/100)
 
         logging.info("tradingsymbol : "+str(tradingsymbol))
         logging.info("quantity : "+str(quantity))
