@@ -124,6 +124,9 @@ class Bot():
                 break
             except:
                 time.sleep(1)
+
+        if(self.risk_per >= 15): 
+            self.risk_per = 15 
                 
         if(buy_price < 100):
             target = round(buy_price + self.risk_per)
