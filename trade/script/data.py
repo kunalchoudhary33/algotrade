@@ -182,7 +182,7 @@ while True:
             df.index = [np.nan] * len(df)
 
             atm_strike = round(underlying_price / 50) * 50
-            strike_prices = [atm_strike-250, atm_strike-200, atm_strike-150, atm_strike-100,  atm_strike-50, atm_strike, atm_strike+50, atm_strike+100, >
+            strike_prices = [atm_strike-250, atm_strike-200, atm_strike-150, atm_strike-100,  atm_strike-50, atm_strike, atm_strike+50, atm_strike+100, atm_strike+150, atm_strike+200, atm_strike+250]
             selected_rows = df[df['Strike'].isin(strike_prices)]
             df_new = pd.DataFrame(selected_rows)
 
@@ -193,7 +193,7 @@ while True:
                 prev_ce_value = sum_of_chng_oi_ce
                 prev_pe_value = sum_of_chng_oi_pe
                 local_df = pd.DataFrame()
-                local_data = {'CE Sellers' : [formatINR(sum_of_chng_oi_ce)],'Diff' : [formatINR(sum_of_chng_oi_pe - sum_of_chng_oi_ce)] ,'PE Selleres' :>
+                local_data = {'CE Sellers' : [formatINR(sum_of_chng_oi_ce)],'Diff' : [formatINR(sum_of_chng_oi_pe - sum_of_chng_oi_ce)] ,'PE Selleres'  :  [formatINR(sum_of_chng_oi_pe)]}
                 local_df = pd.DataFrame(local_data)
                 print(local_df.head())
                 print(" ")
