@@ -130,7 +130,7 @@ while True:
                 thread.start()
             option_data = {}
             instrument_for_ltp = "NSE:NIFTY 50" if oc_symbol == "NIFTY" else (
-                                "NSE:NIFTY BANK" if oc_symbol == "BANKNIFTY" else ("NSE:NIFTY FIN SERVICE" if oc_symbol == "FINNIFTY" else f"NSE:{oc_sym>
+                        "NSE:NIFTY BANK" if oc_symbol == "BANKNIFTY" else ("NSE:NIFTY FIN SERVICE" if oc_symbol == "FINNIFTY" else f"NSE:{oc_symbol}"))
             underlying_price = kite.quote(instrument_for_ltp)[instrument_for_ltp]["last_price"]
             for symbol, values in kite.quote(list(instrument_dict.keys())).items():
                 try:
